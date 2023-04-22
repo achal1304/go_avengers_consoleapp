@@ -1,6 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
 
 type AvengersMissions map[string][]string
 
@@ -14,6 +20,7 @@ type Avenger struct {
 var Avengers []Avenger
 
 type Mission struct {
+	Name    string
 	Details string
 	Status  string
 }
@@ -49,29 +56,79 @@ func listmenu() {
 	fmt.Println("6. List Avengers")
 }
 
-func insertAvengers(avenger Avenger) {
-	Avengers = append(Avengers, avenger)
-}
-
 func menu() {
-	var choice int
-
+	scanner := bufio.NewScanner(os.Stdin)
 	listmenu()
 
 	for {
-		fmt.Scan(&choice)
-
-		if choice > 6 || choice < 1 {
-			fmt.Println("Plese choose correct option")
-			break
+		fmt.Print("Enter your choice: ")
+		scanner.Scan()
+		choice, err := strconv.Atoi(scanner.Text())
+		if err != nil || choice > 6 || choice < 1 {
+			fmt.Println("Please choose a valid option")
+			continue
 		}
 		switch choice {
 		case 1:
 			getAvengers()
+		case 2:
+			var mission Mission
+			input := takeInput("Enter a comma-separated list of strings: ")
+			avengers := strings.Split(input, ",")
+			isValidAvenger := isValidAvenger(avengers)
+			if !isValidAvenger {
+				fmt.Print("Not a valid avengers list")
+			}
+
+			mission.Name = takeInputText("Enter Mission: ")
+			mission.Details = takeInputText("Enter Mission Details: ")
+			mission.Status = "Assigned"
+
 		default:
-			fmt.Println("THis is default message")
+			fmt.Println("This is default message")
 		}
 	}
+}
+
+func takeInput(inputText string) string {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print(inputText)
+	text, _ := reader.ReadString('\n')
+	text = strings.TrimSuffix(text, "\r\n")
+	text = strings.TrimSuffix(text, "\n")
+	return text
+}
+
+func takeInputText(inputText string) string {
+	fmt.Print(inputText)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	choice := scanner.Text()
+
+	return choice
+}
+
+func isValidAvenger(avengers []string) bool {
+	fmt.Printf("Avenger: %v\n", avengers)
+	var countAvenger = 0
+	for _, avenger := range avengers {
+		for _, a := range Avengers {
+			if strings.TrimSpace(avenger) == strings.TrimSpace(a.Name) {
+				fmt.Printf("Match found: %s\n", avenger)
+				countAvenger += 1
+			}
+		}
+	}
+	fmt.Printf("Count: %d, CountAv: %d\n", countAvenger, len(avengers))
+	return countAvenger == len(avengers)
+}
+
+func assignMissions(avenger Avenger, mission Mission) {
+
+}
+
+func insertAvengers(avenger Avenger) {
+	Avengers = append(Avengers, avenger)
 }
 
 func getAvengers() {
@@ -79,4 +136,8 @@ func getAvengers() {
 	for _, avenger := range Avengers {
 		fmt.Println(avenger.Name)
 	}
+}
+
+func checkMissionDetails() {
+
 }
