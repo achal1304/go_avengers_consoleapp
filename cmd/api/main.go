@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type AvengersMissions map[string][]string
+var AvengersMissions = make(map[*Mission]*[]Avenger)
 
 type Avenger struct {
 	Name              string
@@ -75,14 +75,22 @@ func menu() {
 			var mission Mission
 			input := takeInput("Enter a comma-separated list of strings: ")
 			avengers := strings.Split(input, ",")
-			isValidAvenger := isValidAvenger(avengers)
+			isValidAvenger, avengersAssigned := isValidAvenger(avengers)
+			hasBeenAssigned, avengerAssigned := isAvengerAssigned(avengers)
+			if !hasBeenAssigned {
+				fmt.Printf("Sorry, %s has already been working on two missions.", avengerAssigned)
+				continue
+			}
 			if !isValidAvenger {
 				fmt.Print("Not a valid avengers list")
+				continue
 			}
 
 			mission.Name = takeInputText("Enter Mission: ")
 			mission.Details = takeInputText("Enter Mission Details: ")
 			mission.Status = "Assigned"
+
+			assignMissions(avengersAssigned, mission)
 
 		default:
 			fmt.Println("This is default message")
@@ -108,23 +116,50 @@ func takeInputText(inputText string) string {
 	return choice
 }
 
-func isValidAvenger(avengers []string) bool {
+func isValidAvenger(avengers []string) (bool, []Avenger) {
 	fmt.Printf("Avenger: %v\n", avengers)
 	var countAvenger = 0
+	var avengerDetails []Avenger
 	for _, avenger := range avengers {
 		for _, a := range Avengers {
 			if strings.TrimSpace(avenger) == strings.TrimSpace(a.Name) {
 				fmt.Printf("Match found: %s\n", avenger)
+				avengerDetails = append(avengerDetails, a)
 				countAvenger += 1
 			}
 		}
 	}
 	fmt.Printf("Count: %d, CountAv: %d\n", countAvenger, len(avengers))
-	return countAvenger == len(avengers)
+	return countAvenger == len(avengers), avengerDetails
 }
 
-func assignMissions(avenger Avenger, mission Mission) {
+func isAvengerAssigned(avengers []string) (bool, string) {
+	for _, avengerMission := range Avengers {
+		for _, name := range avengers {
+			if strings.TrimSpace(name) == strings.TrimSpace(avengerMission.Name) {
+				if avengerMission.MissionsAssigned >= 2 {
+					return false, name
+				}
+			}
+		}
+	}
+	return true, ""
+}
 
+func assignMissions(avengers []Avenger, mission Mission) {
+	Missions = append(Missions, mission)
+	AvengersMissions[&mission] = &avengers
+	updateMissionStatusAvenger(avengers)
+}
+
+func updateMissionStatusAvenger(avengers []Avenger) {
+	for i := 0; i < len(Avengers); i++ {
+		for _, avenger := range avengers {
+			if strings.TrimSpace(avenger.Name) == strings.TrimSpace(Avengers[i].Name) {
+				Avengers[i].MissionsAssigned += 1
+			}
+		}
+	}
 }
 
 func insertAvengers(avenger Avenger) {
@@ -135,6 +170,9 @@ func getAvengers() {
 	fmt.Println("Get avengers called")
 	for _, avenger := range Avengers {
 		fmt.Println(avenger.Name)
+		fmt.Println(avenger.Abilities)
+		fmt.Println(avenger.MissionsAssigned)
+		fmt.Println(avenger.MissionsCompleted)
 	}
 }
 
