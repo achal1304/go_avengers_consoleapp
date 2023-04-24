@@ -70,7 +70,7 @@ func menu() {
 		}
 		switch choice {
 		case 1:
-			getAvengers()
+			checkMissionDetails()
 		case 2:
 			var mission Mission
 			input := takeInput("Enter a comma-separated list of strings: ")
@@ -177,5 +177,20 @@ func getAvengers() {
 }
 
 func checkMissionDetails() {
+	if len(AvengersMissions) == 0 {
+		fmt.Println("No Mission has been assigned to an Avenger.")
+		return
+	}
+
+	fmt.Println("Mission Name               Status              Avenger")
+	for key, value := range AvengersMissions {
+		var avengersAssigned []string
+		for _, avenger := range *value {
+			avengersAssigned = append(avengersAssigned, avenger.Name)
+		}
+		fmt.Printf("%s               ", key.Name)
+		fmt.Printf("%s               ", key.Status)
+		fmt.Println(strings.Join(avengersAssigned, ", "))
+	}
 
 }
