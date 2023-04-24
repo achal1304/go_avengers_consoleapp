@@ -70,7 +70,7 @@ func menu() {
 		}
 		switch choice {
 		case 1:
-			checkMissionDetails()
+			getAllMissionDetails()
 		case 2:
 			var mission Mission
 			input := takeInput("Enter a comma-separated list of strings: ")
@@ -91,7 +91,10 @@ func menu() {
 			mission.Status = "Assigned"
 
 			assignMissions(avengersAssigned, mission)
-
+		case 3:
+			fmt.Print("Enter Mission Name: ")
+			scanner.Scan()
+			checkMissionDetails(scanner.Text())
 		default:
 			fmt.Println("This is default message")
 		}
@@ -176,7 +179,7 @@ func getAvengers() {
 	}
 }
 
-func checkMissionDetails() {
+func getAllMissionDetails() {
 	if len(AvengersMissions) == 0 {
 		fmt.Println("No Mission has been assigned to an Avenger.")
 		return
@@ -184,13 +187,29 @@ func checkMissionDetails() {
 
 	fmt.Println("Mission Name               Status              Avenger")
 	for key, value := range AvengersMissions {
-		var avengersAssigned []string
-		for _, avenger := range *value {
-			avengersAssigned = append(avengersAssigned, avenger.Name)
-		}
 		fmt.Printf("%s               ", key.Name)
 		fmt.Printf("%s               ", key.Status)
-		fmt.Println(strings.Join(avengersAssigned, ", "))
+		fmt.Println(strings.Join(getNamesFromAvengers(value), ", "))
 	}
 
+}
+
+func checkMissionDetails(missionName string) {
+	for key, value := range AvengersMissions {
+		if key.Name == missionName {
+			fmt.Println("Mission Details: ", key.Details)
+			fmt.Println("Mission Status : ", key.Status)
+			fmt.Println("Avengers assigned", strings.Join(getNamesFromAvengers(value), ", "))
+			return
+		}
+	}
+	fmt.Println("No Mission with such name")
+}
+
+func getNamesFromAvengers(avengers *[]Avenger) []string {
+	var avengersAssigned []string
+	for _, avenger := range *avengers {
+		avengersAssigned = append(avengersAssigned, avenger.Name)
+	}
+	return avengersAssigned
 }
