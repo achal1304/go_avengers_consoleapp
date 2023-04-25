@@ -152,7 +152,7 @@ func updateMissionStatusInDictionary(mission Mission) {
 	AvengersMissions[mission] = avengerDetails
 }
 
-func isAvengerAssigned(avengers []string) (bool, string) {
+func isAvengerAvailable(avengers []string) (bool, string) {
 	for _, avengerMission := range Avengers {
 		for _, name := range avengers {
 			if strings.TrimSpace(name) == strings.TrimSpace(avengerMission.Name) {

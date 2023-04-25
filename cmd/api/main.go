@@ -52,7 +52,7 @@ func menu() {
 			input := takeInput("Enter a comma-separated list of strings: ")
 			avengers := strings.Split(input, ",")
 			isValidAvenger, avengersAssigned := isValidAvenger(avengers)
-			hasBeenAssigned, avengerAssigned := isAvengerAssigned(avengers)
+			hasBeenAssigned, avengerAssigned := isAvengerAvailable(avengers)
 			if !hasBeenAssigned {
 				fmt.Printf("Sorry, %s has already been working on two missions.", avengerAssigned)
 				continue
